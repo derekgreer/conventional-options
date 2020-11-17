@@ -1,0 +1,54 @@
+{
+  "name": "conventional-options",
+  "projectName": "ConventionalOptions",
+  "version": "1.0.0",
+  "configuration": "Release",
+  "description": "An options convenience library",
+  "dotnetPath": "\"c:/Program Files/dotnet/dotnet.exe\"",
+  "publishSource": "https://www.nuget.org/api/v2/package",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/derekgreer/conventionalOptions.git"
+  },
+  "scripts": {
+    "ci:release": "standard-version -a --releaseCommitMessageFormat=\"chore(release): {{currentTag}}; [skip ci]\"",
+    "clean": "rimraf dist build",
+    "prebuild": "npm run clean",
+    "build": "npm-run-all build:restore build:compile tests package",
+    "build:restore": "cross-env-shell globstar -- ${npm_package_dotnetPath} restore \"**/*.sln\" /p:Version=${npm_package_version}",
+    "build:compile": "cross-env-shell globstar -- ${npm_package_dotnetPath} build \"**/*.sln\" --configuration ${npm_package_configuration} /p:Version=${npm_package_version}",
+    "prebuild:pre-release": "npm run clean",
+    "build:pre-release": "npm-run-all build:pre-release:restore build:pre-release:compile tests package:pre-release",
+    "build:pre-release:restore": "cross-env globstar -- ${npm_package_dotnetPath} restore \"**/*.sln\" /p:VersionPrefix=${npm_config_version_prefix}",
+    "build:pre-release:compile": "cross-env globstar -- ${npm_package_dotnetPath} build \"**/*.sln\" --configuration ${npm_package_configuration} /p:VersionPrefix=${npm_config_version_prefix}",
+    "tests": "cross-env-shell globstar -- ${npm_package_dotnetPath} test \"src/**/${npm_package_projectName}.Specs/*.csproj --no-build --configuration ${npm_package_configuration}",
+    "package": "npm-run-all package:release:*",
+    "package:release:main": "cross-env-shell globstar -- ${npm_package_dotnetPath} pack \"./src/**/${npm_package_projectName}.csproj\" -c ${npm_package_configuration} --no-build -o dist --include-symbols /p:Version=${npm_package_version}",
+    "package:release:autofac": "cross-env-shell globstar -- ${npm_package_dotnetPath} pack \"./src/**/${npm_package_projectName}.Autofac.csproj\" -c ${npm_package_configuration} --no-build -o dist --include-symbols /p:Version=${npm_package_version}",
+    "package:release:di": "cross-env-shell globstar -- ${npm_package_dotnetPath} pack \"./src/**/${npm_package_projectName}.DependencyInjection.csproj\" -c ${npm_package_configuration} --no-build -o dist --include-symbols /p:Version=${npm_package_version}",
+    "package:release:ninject": "cross-env-shell globstar -- ${npm_package_dotnetPath} pack \"./src/**/${npm_package_projectName}.Ninject.csproj\" -c ${npm_package_configuration} --no-build -o dist --include-symbols /p:Version=${npm_package_version}",
+    "package:release:structureMap": "cross-env-shell globstar -- ${npm_package_dotnetPath} pack \"./src/**/${npm_package_projectName}.StructureMap.csproj\" -c ${npm_package_configuration} --no-build -o dist --include-symbols /p:Version=${npm_package_version}",
+    "package:pre-release": "npm-run-all package:pre-release:*",
+    "package:pre-release:main": "cross-env-shell globstar -- ${npm_package_dotnetPath} pack \"./src/**/${npm_package_projectName}.csproj\" -c ${npm_package_configuration} --no-build -o dist --include-symbols -p:VersionPrefix=${npm_config_version_prefix} --version-suffix ${npm_config_version_suffix}",
+    "package:pre-release:autofac": "cross-env-shell globstar -- ${npm_package_dotnetPath} pack \"./src/**/${npm_package_projectName}.Autofac.csproj\" -c ${npm_package_configuration} --no-build -o dist --include-symbols -p:VersionPrefix=${npm_config_version_prefix} --version-suffix ${npm_config_version_suffix}",
+    "package:pre-release:di": "cross-env-shell globstar -- ${npm_package_dotnetPath} pack \"./src/**/${npm_package_projectName}.DependencyInjection.csproj\" -c ${npm_package_configuration} --no-build -o dist --include-symbols -p:VersionPrefix=${npm_config_version_prefix} --version-suffix ${npm_config_version_suffix}",
+    "package:pre-release:ninject": "cross-env-shell globstar -- ${npm_package_dotnetPath} pack \"./src/**/${npm_package_projectName}.Ninject.csproj\" -c ${npm_package_configuration} --no-build -o dist --include-symbols -p:VersionPrefix=${npm_config_version_prefix} --version-suffix ${npm_config_version_suffix}",
+    "package:pre-release:structureMap": "cross-env-shell globstar -- ${npm_package_dotnetPath} pack \"./src/**/${npm_package_projectName}.StructureMap.csproj\" -c ${npm_package_configuration} --no-build -o dist --include-symbols -p:VersionPrefix=${npm_config_version_prefix} --version-suffix ${npm_config_version_suffix}",
+    "publish": "cross-env-shell dotnet nuget push --source ${npm_package_publishSource} --skip-duplicate dist/**/*.nupkg",
+    "publish:private": "cross-env-shell copyfiles --flat --error dist/*.nupkg ${APPDATA}/Packages/"
+  },
+  "keywords": [
+    "configuration",
+    "options"
+  ],
+  "author": "Derek Greer",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {
+    "copyfiles": "^2.2.0",
+    "cross-env": "^5.0.2",
+    "globstar": "^1.0.0",
+    "npm-run-all": "^4.0.2",
+    "rimraf": "^2.6.1"
+  }
+}

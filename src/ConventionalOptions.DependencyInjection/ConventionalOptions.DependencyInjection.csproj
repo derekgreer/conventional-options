@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<OutputType>Library</OutputType>
+		<TargetFramework>netstandard2.0</TargetFramework>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+		<PackageReference Include="Microsoft.Extensions.Configuration" Version="3.1.9" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.9" />
+		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="3.1.9" />
+		<PackageReference Include="Ninject" Version="3.3.4" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\ConventionalOptions\ConventionalOptions.csproj" />
+	</ItemGroup>
+
+</Project>
