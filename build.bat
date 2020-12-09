@@ -34,7 +34,7 @@ GOTO end
   )
 
   ECHO Building Prelease Version: %PRE_RELEASE_VERSION%-%SUFFIX%
-  call npm run build:pre-release --version-prefix=%PRE_RELEASE_VERSION% --version-suffix=%SUFFIX%
+  call npm run build --version-prefix=%PRE_RELEASE_VERSION% --version-suffix=%SUFFIX%
 GOTO end
 
 :error
