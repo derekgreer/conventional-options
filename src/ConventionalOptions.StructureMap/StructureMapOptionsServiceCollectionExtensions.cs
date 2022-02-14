@@ -67,8 +67,8 @@ namespace ConventionalOptions.StructureMap
             configurationExpression.For(optionsType).Use($"Build ${optionsType}", context =>
                 {
                     var genericType = typeof(IOptions<>).MakeGenericType(optionsType);
-                    dynamic options = context.GetInstance(genericType);
-                    return options.Value;
+                    var options = context.GetInstance(genericType);
+                    return genericType.GetProperty("Value").GetValue(options);
                 }).Singleton();
         }
 

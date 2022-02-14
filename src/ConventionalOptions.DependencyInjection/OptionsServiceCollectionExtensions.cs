@@ -34,8 +34,8 @@ public static class OptionsServiceCollectionExtensions
             services.Add(new ServiceDescriptor(optionsType, serviceProvider =>
             {
                 var genericType = typeof(IOptions<>).MakeGenericType(optionsType);
-                dynamic options = serviceProvider.GetService(genericType);
-                return options.Value;
+                var options = serviceProvider.GetService(genericType);
+                return genericType.GetProperty("Value").GetValue(options);
             }, ServiceLifetime.Singleton));
         }
 

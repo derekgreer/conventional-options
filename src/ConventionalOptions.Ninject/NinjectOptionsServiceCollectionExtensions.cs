@@ -64,8 +64,8 @@ namespace ConventionalOptions.Ninject
             kernel.Bind(optionsType).ToMethod(context =>
                 {
                     var genericType = typeof(IOptions<>).MakeGenericType(optionsType);
-                    dynamic options = context.Kernel.Get(genericType);
-                    return options.Value;
+                    var options = context.Kernel.Get(genericType);
+                    return genericType.GetProperty("Value").GetValue(options);
                 }
             );
         }
