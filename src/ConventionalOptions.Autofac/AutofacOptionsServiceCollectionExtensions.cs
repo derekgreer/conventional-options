@@ -27,7 +27,7 @@ namespace ConventionalOptions.Autofac
             {
                 throw new ArgumentNullException(nameof(builder));
             }
-            
+
             builder.RegisterGeneric(typeof(OptionsManager<>)).As(typeof(IOptions<>)).SingleInstance();
             builder.RegisterGeneric(typeof(OptionsManager<>)).As(typeof(IOptionsSnapshot<>)).InstancePerLifetimeScope();
             builder.RegisterGeneric(typeof(OptionsMonitor<>)).As(typeof(IOptionsMonitor<>)).SingleInstance();
@@ -66,8 +66,8 @@ namespace ConventionalOptions.Autofac
             builder.Register(context =>
                 {
                     var genericType = typeof(IOptions<>).MakeGenericType(optionsType);
-                    dynamic options = context.Resolve(genericType);
-                    return options.Value;
+                    var options = context.Resolve(genericType);
+                    return genericType.GetProperty("Value").GetValue(options);
                 }
             ).As(optionsType).SingleInstance();
         }
