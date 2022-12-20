@@ -9,27 +9,27 @@ namespace ConventionalOptions.DependencyInjection
 {
 public static class OptionsServiceCollectionExtensions
     {
-        public static void RegisterOptionsFromAssemblies(this IServiceCollection services, IConfiguration configuration, params Assembly[] assemblies)
+        public static void RegisterOptionsFromAssemblies(this IServiceCollection services, params Assembly[] assemblies)
         {
             var types = assemblies.SelectMany(a =>
                 a.GetTypes().Where(t => !t.IsAbstract && !t.IsInterface && t.Name.EndsWith("Options"))).ToList();
 
-            foreach (var t in types) services.RegisterOptions(configuration, t);
+            foreach (var t in types) services.RegisterOptions(t);
         }
 
         public static void RegisterOptions<TOptions>(this IServiceCollection services, IConfiguration configuration)
         {
-            services.RegisterOptions(configuration, typeof(TOptions));
+            services.RegisterOptions(typeof(TOptions));
         }
 
-        public static void RegisterOptions(this IServiceCollection services, IConfiguration configuration, Type optionsType)
+        public static void RegisterOptions(this IServiceCollection services, Type optionsType)
         {
-            RegisterChangeTokenSource(services, optionsType, configuration);
-            RegisterConfigureOptions(services, optionsType, configuration);
-            RegisterOptions(services, optionsType);
+            RegisterChangeTokenSource(services, optionsType);
+            RegisterConfigureOptions(services, optionsType);
+            RegisterOptionsInternal(services, optionsType);
         }
 
-        static void RegisterOptions(IServiceCollection services, Type optionsType)
+        static void RegisterOptionsInternal(IServiceCollection services, Type optionsType)
         {
             services.Add(new ServiceDescriptor(optionsType, serviceProvider =>
             {
@@ -39,27 +39,29 @@ public static class OptionsServiceCollectionExtensions
             }, ServiceLifetime.Singleton));
         }
 
-        static void RegisterConfigureOptions(IServiceCollection services, Type optionsType, IConfiguration configurationSection)
+        static void RegisterConfigureOptions(IServiceCollection services, Type optionsType)
         {
             var configurationOptionsInterfaceType = typeof(IConfigureOptions<>).MakeGenericType(optionsType);
 
             services.Add(new ServiceDescriptor(configurationOptionsInterfaceType, serviceProvider =>
             {
+                var configuration = serviceProvider.GetService<IConfiguration>();
                 var configurationOptionsType = typeof(ConfigureFromConfigurationSectionOptions<>).MakeGenericType(optionsType);
-                var configurationOptionsTypeInstance = Activator.CreateInstance(configurationOptionsType, configurationSection);
+                var configurationOptionsTypeInstance = Activator.CreateInstance(configurationOptionsType, configuration);
 
                 return configurationOptionsTypeInstance;
             }, ServiceLifetime.Singleton));
         }
 
-        static void RegisterChangeTokenSource(IServiceCollection services, Type optionsType, IConfiguration configurationSection)
+        static void RegisterChangeTokenSource(IServiceCollection services, Type optionsType)
         {
             var optionsChangeTokenSourceInterfaceType = typeof(IOptionsChangeTokenSource<>).MakeGenericType(optionsType);
 
             services.Add(new ServiceDescriptor(optionsChangeTokenSourceInterfaceType, serviceProvider =>
             {
+                var configuration = serviceProvider.GetService<IConfiguration>();
                 var changeTokenSourceType = typeof(ConfigurationChangeTokenSource<>).MakeGenericType(optionsType);
-                var configurationChangeTokenSourceInstance = Activator.CreateInstance(changeTokenSourceType, Options.DefaultName, configurationSection);
+                var configurationChangeTokenSourceInstance = Activator.CreateInstance(changeTokenSourceType, Options.DefaultName, configuration);
                 return configurationChangeTokenSourceInstance;
             }, ServiceLifetime.Singleton));
         }

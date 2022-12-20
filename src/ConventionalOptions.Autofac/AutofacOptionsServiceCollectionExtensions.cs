@@ -36,32 +36,32 @@ namespace ConventionalOptions.Autofac
             return builder;
         }
 
-        public static ContainerBuilder RegisterOptionsFromAssemblies(this ContainerBuilder builder, IConfiguration configuration, params Assembly[] assemblies)
+        public static ContainerBuilder RegisterOptionsFromAssemblies(this ContainerBuilder builder, params Assembly[] assemblies)
         {
             var types = assemblies.SelectMany(a => a.GetTypes().Where(t => !t.IsAbstract && !t.IsInterface && t.Name.EndsWith("Options"))).ToList();
 
-            foreach (var t in types) builder.RegisterOptions(configuration, t);
+            foreach (var t in types) builder.RegisterOptions(t);
 
             return builder;
         }
 
-        public static ContainerBuilder RegisterOptions<TOptions>(this ContainerBuilder builder, IConfiguration configuration)
+        public static ContainerBuilder RegisterOptions<TOptions>(this ContainerBuilder builder)
         {
-            builder.RegisterOptions(configuration, typeof(TOptions));
+            builder.RegisterOptions(typeof(TOptions));
 
             return builder;
         }
 
-        public static ContainerBuilder RegisterOptions(this ContainerBuilder builder, IConfiguration configuration, Type optionsType)
+        public static ContainerBuilder RegisterOptions(this ContainerBuilder builder, Type optionsType)
         {
-            RegisterChangeTokenSource(builder, optionsType, configuration);
-            RegisterConfigureOptions(builder, optionsType, configuration);
-            RegisterOptions(builder, optionsType);
+            RegisterChangeTokenSource(builder, optionsType);
+            RegisterConfigureOptions(builder, optionsType);
+            RegisterOptionsInternal(builder, optionsType);
 
             return builder;
         }
 
-        static void RegisterOptions(ContainerBuilder builder, Type optionsType)
+        static void RegisterOptionsInternal(ContainerBuilder builder, Type optionsType)
         {
             builder.Register(context =>
                 {
@@ -72,12 +72,13 @@ namespace ConventionalOptions.Autofac
             ).As(optionsType).SingleInstance();
         }
 
-        static void RegisterConfigureOptions(ContainerBuilder builder, Type optionsType, IConfiguration configuration)
+        static void RegisterConfigureOptions(ContainerBuilder builder, Type optionsType)
         {
             var configurationOptionsInterfaceType = typeof(IConfigureOptions<>).MakeGenericType(optionsType);
 
             builder.Register(context =>
             {
+                var configuration = context.Resolve<IConfiguration>();
                 var configurationOptionsType = typeof(ConfigureFromConfigurationSectionOptions<>).MakeGenericType(optionsType);
                 var configurationOptionsTypeInstance = Activator.CreateInstance(configurationOptionsType, configuration);
 
@@ -85,12 +86,13 @@ namespace ConventionalOptions.Autofac
             }).As(configurationOptionsInterfaceType).SingleInstance();
         }
 
-        static void RegisterChangeTokenSource(ContainerBuilder builder, Type optionsType, IConfiguration configuration)
+        static void RegisterChangeTokenSource(ContainerBuilder builder, Type optionsType)
         {
             var optionsChangeTokenSourceInterfaceType = typeof(IOptionsChangeTokenSource<>).MakeGenericType(optionsType);
 
             builder.Register(context =>
             {
+                var configuration = context.Resolve<IConfiguration>();
                 var changeTokenSourceType = typeof(ConfigurationChangeTokenSource<>).MakeGenericType(optionsType);
                 var configurationChangeTokenSourceInstance = Activator.CreateInstance(changeTokenSourceType, Options.DefaultName, configuration);
                 return configurationChangeTokenSourceInstance;

@@ -6,6 +6,7 @@ using ExpectedObjects;
 using Machine.Specifications;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 
 namespace ConventionalOptions.Specs.Specifications
 {
@@ -28,6 +29,7 @@ namespace ConventionalOptions.Specs.Specifications
                     }).Build();
 
                 var services = new ServiceCollection();
+                services.AddSingleton<IConfiguration>(configuration);
                 services.AddOptions();
                 services.RegisterOptions<TestOptions>(configuration);
                 _container = services.BuildServiceProvider();
@@ -61,8 +63,9 @@ namespace ConventionalOptions.Specs.Specifications
                     }).Build();
 
                 var services = new ServiceCollection();
+                services.AddSingleton<IConfiguration>(configuration);
                 services.AddOptions();
-                services.RegisterOptionsFromAssemblies(configuration, Assembly.GetExecutingAssembly());
+                services.RegisterOptionsFromAssemblies(Assembly.GetExecutingAssembly());
                 _container = services.BuildServiceProvider();
 
                 _expectedOptions = new

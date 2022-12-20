@@ -1,12 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.Reflection;
 using Autofac;
+using Autofac.Core;
 using ConventionalOptions.Autofac;
 using ConventionalOptions.Specs.Model;
 using ExpectedObjects;
 using Machine.Specifications;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
+using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 
 namespace ConventionalOptions.Specs.Specifications
 {
@@ -28,10 +30,10 @@ namespace ConventionalOptions.Specs.Specifications
                         {"Test:IntProperty", "2"}
                     }).Build();
 
-                _container = new ContainerBuilder()
-                    .AddOptions()
-                    .RegisterOptions<TestOptions>(configuration)
-                    .Build();
+                var builder = new ContainerBuilder();
+                builder.RegisterInstance(configuration).As<IConfiguration>();
+                builder.AddOptions().RegisterOptions<TestOptions>();
+                _container = builder.Build();
 
                 _expectedOptions = new
                 {
@@ -57,14 +59,14 @@ namespace ConventionalOptions.Specs.Specifications
                 var configuration = new ConfigurationBuilder()
                     .AddInMemoryCollection(new Dictionary<string, string>
                     {
-                        {"Test:StringProperty", "TestValue"},
-                        {"Test:IntProperty", "2"}
+                        { "Test:StringProperty", "TestValue" },
+                        { "Test:IntProperty", "2" }
                     }).Build();
 
-                _container = new ContainerBuilder()
-                    .AddOptions()
-                    .RegisterOptionsFromAssemblies(configuration, Assembly.GetExecutingAssembly())
-                    .Build();
+                var builder = new ContainerBuilder();
+                builder.RegisterInstance(configuration).As<IConfiguration>();
+                builder.AddOptions().RegisterOptionsFromAssemblies(Assembly.GetExecutingAssembly());
+                _container = builder.Build();
 
                 _expectedOptions = new
                 {
@@ -94,11 +96,11 @@ namespace ConventionalOptions.Specs.Specifications
                         {"Test:IntProperty", "2"}
                     }).Build();
 
-                _container = new ContainerBuilder()
-                    .AddOptions()
-                    .RegisterOptionsFromAssemblies(configuration, Assembly.GetExecutingAssembly())
-                    .Build();
-
+                var builder = new ContainerBuilder();
+                builder.RegisterInstance(configuration).As<IConfiguration>();
+                builder.AddOptions().RegisterOptionsFromAssemblies(Assembly.GetExecutingAssembly());
+                _container = builder.Build();
+                    
                 _expectedOptions = new
                 {
                     StringProperty = "TestValue",
@@ -127,10 +129,10 @@ namespace ConventionalOptions.Specs.Specifications
                         {"Test:IntProperty", "2"}
                     }).Build();
 
-                _container = new ContainerBuilder()
-                    .AddOptions()
-                    .RegisterOptionsFromAssemblies(configuration, Assembly.GetExecutingAssembly())
-                    .Build();
+                var builder = new ContainerBuilder();
+                builder.RegisterInstance(configuration).As<IConfiguration>();
+                builder.AddOptions().RegisterOptionsFromAssemblies(Assembly.GetExecutingAssembly());
+                _container = builder.Build();
 
                 _expectedOptions = new
                 {
@@ -160,10 +162,10 @@ namespace ConventionalOptions.Specs.Specifications
                         {"Test:IntProperty", "2"}
                     }).Build();
 
-                _container = new ContainerBuilder()
-                    .AddOptions()
-                    .RegisterOptionsFromAssemblies(configuration, Assembly.GetExecutingAssembly())
-                    .Build();
+                var builder = new ContainerBuilder();
+                builder.RegisterInstance(configuration).As<IConfiguration>();
+                builder.AddOptions().RegisterOptionsFromAssemblies(Assembly.GetExecutingAssembly());
+                _container = builder.Build();
 
                 _expectedOptions = new
                 {

@@ -7,6 +7,7 @@ using Machine.Specifications;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using StructureMap;
+using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 
 namespace ConventionalOptions.Specs.Specifications
 {
@@ -29,8 +30,10 @@ namespace ConventionalOptions.Specs.Specifications
                     }).Build();
 
                 _container = new Container(x =>
-                    x.AddOptions()
-                    .RegisterOptions<TestOptions>(configuration));
+                {
+                    x.For<IConfiguration>().Use(configuration);
+                    x.AddOptions().RegisterOptions<TestOptions>(configuration);
+                });
 
                 _expectedOptions = new
                 {
@@ -61,8 +64,10 @@ namespace ConventionalOptions.Specs.Specifications
                     }).Build();
 
                 _container = new Container(x =>
-                    x.AddOptions()
-                        .RegisterOptionsFromAssemblies(configuration, Assembly.GetExecutingAssembly()));
+                {
+                    x.For<IConfiguration>().Use(configuration);
+                    x.AddOptions().RegisterOptionsFromAssemblies(Assembly.GetExecutingAssembly());
+                });
 
                 _expectedOptions = new
                 {
@@ -93,8 +98,10 @@ namespace ConventionalOptions.Specs.Specifications
                     }).Build();
 
                 _container = new Container(x =>
-                    x.AddOptions()
-                        .RegisterOptionsFromAssemblies(configuration, Assembly.GetExecutingAssembly()));
+                {
+                    x.For<IConfiguration>().Use(configuration);
+                    x.AddOptions().RegisterOptionsFromAssemblies(Assembly.GetExecutingAssembly());
+                });
 
                 _expectedOptions = new
                 {
@@ -125,8 +132,10 @@ namespace ConventionalOptions.Specs.Specifications
                     }).Build();
 
                 _container = new Container(x =>
-                    x.AddOptions()
-                        .RegisterOptionsFromAssemblies(configuration, Assembly.GetExecutingAssembly()));
+                {
+                    x.For<IConfiguration>().Use(configuration);
+                    x.AddOptions().RegisterOptionsFromAssemblies(Assembly.GetExecutingAssembly());
+                });
 
                 _expectedOptions = new
                 {
@@ -157,8 +166,10 @@ namespace ConventionalOptions.Specs.Specifications
                     }).Build();
 
                 _container = new Container(x =>
-                    x.AddOptions()
-                        .RegisterOptionsFromAssemblies(configuration, Assembly.GetExecutingAssembly()));
+                {
+                    x.For<IConfiguration>().Use(configuration);
+                    x.AddOptions().RegisterOptionsFromAssemblies(Assembly.GetExecutingAssembly());
+                });
 
                 _expectedOptions = new
                 {

@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Extensions.Configuration;
@@ -34,32 +33,32 @@ namespace ConventionalOptions.Ninject
             return kernel;
         }
 
-        public static IKernel RegisterOptionsFromAssemblies(this IKernel builder, IConfiguration configuration, params Assembly[] assemblies)
+        public static IKernel RegisterOptionsFromAssemblies(this IKernel builder, params Assembly[] assemblies)
         {
             var types = assemblies.SelectMany(a => a.GetTypes().Where(t => !t.IsAbstract && !t.IsInterface && t.Name.EndsWith("Options"))).ToList();
 
-            foreach (var t in types) builder.RegisterOptions(configuration, t);
+            foreach (var t in types) builder.RegisterOptions(t);
 
             return builder;
         }
 
-        public static IKernel RegisterOptions<TOptions>(this IKernel kernel, IConfiguration configuration)
+        public static IKernel RegisterOptions<TOptions>(this IKernel kernel)
         {
-            kernel.RegisterOptions(configuration, typeof(TOptions));
+            kernel.RegisterOptions(typeof(TOptions));
 
             return kernel;
         }
 
-        public static IKernel RegisterOptions(this IKernel kernel, IConfiguration configuration, Type optionsType)
+        public static IKernel RegisterOptions(this IKernel kernel, Type optionsType)
         {
-            RegisterChangeTokenSource(kernel, optionsType, configuration);
-            RegisterConfigureOptions(kernel, optionsType, configuration);
-            RegisterOptions(kernel, optionsType);
+            RegisterChangeTokenSource(kernel, optionsType);
+            RegisterConfigureOptions(kernel, optionsType);
+            RegisterOptionsInternal(kernel, optionsType);
 
             return kernel;
         }
 
-        static void RegisterOptions(IKernel kernel, Type optionsType)
+        static void RegisterOptionsInternal(IKernel kernel, Type optionsType)
         {
             kernel.Bind(optionsType).ToMethod(context =>
                 {
@@ -70,12 +69,13 @@ namespace ConventionalOptions.Ninject
             );
         }
 
-        static void RegisterConfigureOptions(IKernel kernel, Type optionsType, IConfiguration configuration)
+        static void RegisterConfigureOptions(IKernel kernel, Type optionsType)
         {
             var configurationOptionsInterfaceType = typeof(IConfigureOptions<>).MakeGenericType(optionsType);
 
             kernel.Bind(configurationOptionsInterfaceType).ToMethod(context =>
             {
+                var configuration = context.Kernel.Get<IConfiguration>();
                 var configurationOptionsType = typeof(ConfigureFromConfigurationSectionOptions<>).MakeGenericType(optionsType);
                 var configurationOptionsTypeInstance = Activator.CreateInstance(configurationOptionsType, configuration);
 
@@ -83,12 +83,13 @@ namespace ConventionalOptions.Ninject
             }).InSingletonScope();
         }
 
-        static void RegisterChangeTokenSource(IKernel kernel, Type optionsType, IConfiguration configuration)
+        static void RegisterChangeTokenSource(IKernel kernel, Type optionsType)
         {
             var optionsChangeTokenSourceInterfaceType = typeof(IOptionsChangeTokenSource<>).MakeGenericType(optionsType);
 
             kernel.Bind(optionsChangeTokenSourceInterfaceType).ToMethod(context =>
             {
+                var configuration = context.Kernel.Get<IConfiguration>();
                 var changeTokenSourceType = typeof(ConfigurationChangeTokenSource<>).MakeGenericType(optionsType);
                 var configurationChangeTokenSourceInstance = Activator.CreateInstance(changeTokenSourceType, Options.DefaultName, configuration);
                 return configurationChangeTokenSourceInstance;
