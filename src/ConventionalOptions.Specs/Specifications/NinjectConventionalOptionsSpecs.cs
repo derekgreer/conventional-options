@@ -7,6 +7,7 @@ using Machine.Specifications;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Ninject;
+using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 
 namespace ConventionalOptions.Specs.Specifications
 {
@@ -28,9 +29,9 @@ namespace ConventionalOptions.Specs.Specifications
                         {"Test:IntProperty", "2"}
                     }).Build();
 
-                _container = new StandardKernel()
-                    .AddOptions()
-                    .RegisterOptions<TestOptions>(configuration);
+                _container = new StandardKernel();
+                _container.Bind<IConfiguration>().ToConstant(configuration);
+                _container.AddOptions().RegisterOptions<TestOptions>();
 
                 _expectedOptions = new
                 {
@@ -60,9 +61,9 @@ namespace ConventionalOptions.Specs.Specifications
                         {"Test:IntProperty", "2"}
                     }).Build();
 
-                _container = new StandardKernel()
-                    .AddOptions()
-                    .RegisterOptionsFromAssemblies(configuration, Assembly.GetExecutingAssembly());
+                _container = new StandardKernel();
+                _container.Bind<IConfiguration>().ToConstant(configuration);
+                _container.AddOptions().RegisterOptionsFromAssemblies(Assembly.GetExecutingAssembly());
 
                 _expectedOptions = new
                 {
@@ -92,9 +93,9 @@ namespace ConventionalOptions.Specs.Specifications
                         {"Test:IntProperty", "2"}
                     }).Build();
 
-                _container = new StandardKernel()
-                    .AddOptions()
-                    .RegisterOptionsFromAssemblies(configuration, Assembly.GetExecutingAssembly());
+                _container = new StandardKernel();
+                _container.Bind<IConfiguration>().ToConstant(configuration);
+                _container.AddOptions().RegisterOptionsFromAssemblies(Assembly.GetExecutingAssembly());
 
                 _expectedOptions = new
                 {
@@ -124,9 +125,9 @@ namespace ConventionalOptions.Specs.Specifications
                         {"Test:IntProperty", "2"}
                     }).Build();
 
-                _container = new StandardKernel()
-                    .AddOptions()
-                    .RegisterOptionsFromAssemblies(configuration, Assembly.GetExecutingAssembly());
+                _container = new StandardKernel();
+                _container.Bind<IConfiguration>().ToConstant(configuration);
+                _container.AddOptions().RegisterOptionsFromAssemblies(Assembly.GetExecutingAssembly());
 
                 _expectedOptions = new
                 {
@@ -156,9 +157,9 @@ namespace ConventionalOptions.Specs.Specifications
                         {"Test:IntProperty", "2"}
                     }).Build();
 
-                _container = new StandardKernel()
-                    .AddOptions()
-                    .RegisterOptionsFromAssemblies(configuration, Assembly.GetExecutingAssembly());
+                _container = new StandardKernel();
+                _container.Bind<IConfiguration>().ToConstant(configuration);
+                _container.AddOptions().RegisterOptionsFromAssemblies(Assembly.GetExecutingAssembly());
 
                 _expectedOptions = new
                 {

@@ -37,32 +37,32 @@ namespace ConventionalOptions.StructureMap
             return configurationExpression;
         }
 
-        public static ConfigurationExpression RegisterOptionsFromAssemblies(this ConfigurationExpression configurationExpression, IConfiguration configuration, params Assembly[] assemblies)
+        public static ConfigurationExpression RegisterOptionsFromAssemblies(this ConfigurationExpression configurationExpression, params Assembly[] assemblies)
         {
             var types = assemblies.SelectMany(a => a.GetTypes().Where(t => !t.IsAbstract && !t.IsInterface && t.Name.EndsWith("Options"))).ToList();
 
-            foreach (var t in types) configurationExpression.RegisterOptions(configuration, t);
+            foreach (var t in types) configurationExpression.RegisterOptions(t);
 
             return configurationExpression;
         }
 
         public static ConfigurationExpression RegisterOptions<TOptions>(this ConfigurationExpression configurationExpression, IConfiguration configuration)
         {
-            configurationExpression.RegisterOptions(configuration, typeof(TOptions));
+            configurationExpression.RegisterOptions(typeof(TOptions));
 
             return configurationExpression;
         }
 
-        public static ConfigurationExpression RegisterOptions(this ConfigurationExpression configurationExpression, IConfiguration configuration, Type optionsType)
+        public static ConfigurationExpression RegisterOptions(this ConfigurationExpression configurationExpression, Type optionsType)
         {
-            RegisterChangeTokenSource(configurationExpression, optionsType, configuration);
-            RegisterConfigureOptions(configurationExpression, optionsType, configuration);
-            RegisterOptions(configurationExpression, optionsType);
+            RegisterChangeTokenSource(configurationExpression, optionsType);
+            RegisterConfigureOptions(configurationExpression, optionsType);
+            RegisterOptionsInternal(configurationExpression, optionsType);
 
             return configurationExpression;
         }
 
-        static void RegisterOptions(ConfigurationExpression configurationExpression, Type optionsType)
+        static void RegisterOptionsInternal(ConfigurationExpression configurationExpression, Type optionsType)
         {
             configurationExpression.For(optionsType).Use($"Build ${optionsType}", context =>
                 {
@@ -72,26 +72,29 @@ namespace ConventionalOptions.StructureMap
                 }).Singleton();
         }
 
-        static void RegisterConfigureOptions(ConfigurationExpression configurationExpression, Type optionsType, IConfiguration configuration)
+        static void RegisterConfigureOptions(ConfigurationExpression configurationExpression, Type optionsType)
         {
             var configurationOptionsInterfaceType = typeof(IConfigureOptions<>).MakeGenericType(optionsType);
 
-            configurationExpression.For(configurationOptionsInterfaceType).Use($"Build ${configurationOptionsInterfaceType}", context =>
-            {
-                var configurationOptionsType = typeof(ConfigureFromConfigurationSectionOptions<>).MakeGenericType(optionsType);
-                var configurationOptionsTypeInstance = Activator.CreateInstance(configurationOptionsType, configuration);
+            configurationExpression.For(configurationOptionsInterfaceType).Use($"Build ${configurationOptionsInterfaceType}",
+                context =>
+                {
+                    var configuration = context.GetInstance<IConfiguration>();
+                    var configurationOptionsType = typeof(ConfigureFromConfigurationSectionOptions<>).MakeGenericType(optionsType);
+                    var configurationOptionsTypeInstance = Activator.CreateInstance(configurationOptionsType, configuration);
 
-                return configurationOptionsTypeInstance;
-            }).Singleton();
+                    return configurationOptionsTypeInstance;
+                }).Singleton();
         }
 
-        static void RegisterChangeTokenSource(ConfigurationExpression registry, Type optionsType, IConfiguration configuration)
+        static void RegisterChangeTokenSource(ConfigurationExpression registry, Type optionsType)
         {
             var optionsChangeTokenSourceInterfaceType = typeof(IOptionsChangeTokenSource<>).MakeGenericType(optionsType);
 
             registry.For(optionsChangeTokenSourceInterfaceType).Use($"Build ${optionsChangeTokenSourceInterfaceType}",
                 context =>
                 {
+                    var configuration = context.GetInstance<IConfiguration>();
                     var changeTokenSourceType = typeof(ConfigurationChangeTokenSource<>).MakeGenericType(optionsType);
                     var configurationChangeTokenSourceInstance = Activator.CreateInstance(changeTokenSourceType, Options.DefaultName, configuration);
                     return configurationChangeTokenSourceInstance;

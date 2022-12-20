@@ -8,6 +8,7 @@ using Machine.Specifications;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 
 namespace ConventionalOptions.Specs.Specifications
 {
@@ -29,9 +30,10 @@ namespace ConventionalOptions.Specs.Specifications
                         {"Test:IntProperty", "2"}
                     }).Build();
 
-                _container = new Container(x =>
+                _container = new Container(services =>
                 {
-                    x.AddOptions().RegisterOptions<TestOptions>(configuration);
+                    services.AddSingleton<IConfiguration>(configuration);
+                    services.AddOptions().RegisterOptions<TestOptions>(configuration);
                 });
 
                 _expectedOptions = new
@@ -62,9 +64,10 @@ namespace ConventionalOptions.Specs.Specifications
                         {"Test:IntProperty", "2"}
                     }).Build();
 
-                _container = new Container(x =>
+                _container = new Container(services =>
                 {
-                    x.AddOptions().RegisterOptionsFromAssemblies(configuration, Assembly.GetExecutingAssembly());
+                    services.AddSingleton<IConfiguration>(configuration);
+                    services.AddOptions().RegisterOptionsFromAssemblies(Assembly.GetExecutingAssembly());
                 });
 
                 _expectedOptions = new
@@ -95,9 +98,10 @@ namespace ConventionalOptions.Specs.Specifications
                         {"Test:IntProperty", "2"}
                     }).Build();
 
-                _container = new Container(x =>
+                _container = new Container(services =>
                 {
-                    x.AddOptions().RegisterOptionsFromAssemblies(configuration, Assembly.GetExecutingAssembly());
+                    services.AddSingleton<IConfiguration>(configuration);
+                    services.AddOptions().RegisterOptionsFromAssemblies(Assembly.GetExecutingAssembly());
                 });
 
                 _expectedOptions = new
@@ -128,9 +132,10 @@ namespace ConventionalOptions.Specs.Specifications
                         {"Test:IntProperty", "2"}
                     }).Build();
 
-                _container = new Container(x =>
+                _container = new Container(services =>
                 {
-                    x.AddOptions().RegisterOptionsFromAssemblies(configuration, Assembly.GetExecutingAssembly());
+                    services.AddSingleton<IConfiguration>(configuration);
+                    services.AddOptions().RegisterOptionsFromAssemblies(Assembly.GetExecutingAssembly());
                 });
 
                 _expectedOptions = new
@@ -161,9 +166,10 @@ namespace ConventionalOptions.Specs.Specifications
                         {"Test:IntProperty", "2"}
                     }).Build();
 
-                _container = new Container(x =>
+                _container = new Container(services =>
                 {
-                    x.AddOptions().RegisterOptionsFromAssemblies(configuration, Assembly.GetExecutingAssembly());
+                    services.AddSingleton<IConfiguration>(configuration);
+                    services.AddOptions().RegisterOptionsFromAssemblies(Assembly.GetExecutingAssembly());
                 });
 
                 _expectedOptions = new
