@@ -21,7 +21,7 @@ Add Microsoft's Options feature and register option types:
 
 ```
 services.AddOptions();
-services.RegisterOptionsFromAssemblies(Configuration, Assembly.GetExecutingAssembly());
+services.RegisterOptionsFromAssemblies(Assembly.GetExecutingAssembly());
 ```
 
 ### Step 3
